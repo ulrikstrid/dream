@@ -121,7 +121,7 @@ and upload (request : Message.request) =
       let `Parse th, stream =
         Multipart_form_lwt.stream ~identify body content_type in
       Lwt.async (fun () -> let%lwt _ = th in Lwt.return_unit);
-      state'.stream <- stream;
+      state'.stream <- (stream |> Lwt_stream.map (fun (x, h, s) -> x, h, Lwt_stream.map (fun b -> Bigstringaf.to_string b.Faraday.buffer) s));
       state'.state_init <- false;
       state request
 
